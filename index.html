@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bechara & Randa - Wedding Invitation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --env-bg: #9fa8b0;
+            --env-dark: #8a949d;
+            --env-seal: #4a5568;
+            --ivory: #fdfbf7;
+            --dusty-rose: #dca3a3;
+            --gold: #d4af37;
+            --text-dark: #2d3748;
+            --text-light: #718096;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            font-family: 'Lato', sans-serif;
+            background-color: var(--env-bg);
+            overflow: hidden; /* Prevent scrolling until envelope opens */
+        }
+
+        /* Scroll container */
+        .scroll-container {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden; /* Prevent scrolling until envelope opens */
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            display: flex;
+            flex-direction: row;
+            /* Hide scrollbar for IE, Edge and Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scroll-container.active {
+            overflow-x: auto;
+        }
+
+        .slide {
+            flex: 0 0 100vw;
+            width: 100vw;
+            height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            overflow: hidden;
+            background-color: var(--ivory);
+            color: var(--text-dark);
+        }
+
+        /* Slide 1: Envelope (Overlay) */
+        #envelope-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #e8e6e1; /* Textured paper background */
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            transition: opacity 0.8s ease 0.5s, visibility 0.8s ease 0.5s;
+        }
+
+        .envelope {
+            position: relative;
+            width: 90vw;
+            max-width: 500px;
+            aspect-ratio: 1.5;
+            background: #d1b3a3;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .envelope.opening {
+            transform: scale(5);
+            opacity: 0;
+            transition: transform 1.5s cubic-bezier(0.5, 0, 0.2, 1) 0.4s, opacity 0.8s ease 0.8s;
+        }
+
+        .env-back {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #d1b3a3, #b59281);
+        }
+
+        .env-left {
+            position: absolute;
+            top: 0; left: 0; width: 50%; height: 100%;
+            background: linear-gradient(to right, #cda995, #b89582);
+            clip-path: polygon(0 0, 100% 50%, 0 100%);
+            z-index: 2;
+        }
+
+        .env-right {
+            position: absolute;
+            top: 0; right: 0; width: 50%; height: 100%;
+            background: linear-gradient(to left, #cda995, #b89582);
+            clip-path: polygon(100% 0, 0 50%, 100% 100%);
+            z-index: 2;
+        }
+
+        .env-bottom {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 65%;
+            background: linear-gradient(to top, #d4b5a1, #c4a08b);
+            clip-path: polygon(0 100%, 50% 0, 100% 100%);
+            z-index: 3;
+            filter: drop-shadow(0 -3px 5px rgba(0,0,0,0.08));
+        }
+
+        .env-top {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 60%;
+            background: linear-gradient(to bottom, #d8bdaf, #c4a08b);
+            clip-path: polygon(0 0, 50% 100%, 100% 0);
+            z-index: 4;
+            transform-origin: top;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+        }
+
+        .env-top.open {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .wax-seal-container {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+
+        .wax-seal-container.broken {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .wax-seal-svg {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        .tap-text {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #8a7b71;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes slow-pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Typography */
+        h1, h2, h3, .script-font {
+            font-family: 'Great Vibes', cursive;
+            font-weight: normal;
+        }
+
+        .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .title-large {
+            font-size: 4.5rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-family: 'Lato', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        /* Slide 2: Hero */
+        #slide-hero {
+            background-image: linear-gradient(rgba(253, 251, 247, 0.6), rgba(253, 251, 247, 0.8)), url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+        }
+
+        .countdown-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--dusty-rose);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .countdown-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-light);
+        }
+
+        /* Slide 3: Invite */
+        #slide-invite {
+            background-image: linear-gradient(rgba(253, 251, 247, 0.9), rgba(253, 251, 247, 0.9)), url('https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .bible-verse {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: var(--text-light);
+            max-width: 80%;
+            margin-bottom: 3rem;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .parents-text {
+            font-size: 1.05rem;
+            line-height: 2;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            color: var(--text-dark);
+        }
+
+        .wedding-date {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--dusty-rose);
+            margin-top: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        /* Cards */
+        .info-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3.5rem 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            max-width: 450px;
+            width: 100%;
+            border: 1px solid rgba(220, 163, 163, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--dusty-rose), var(--gold));
+        }
+
+        .info-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .info-detail {
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: var(--text-dark);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background-color: var(--dusty-rose);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(220, 163, 163, 0.4);
+        }
+
+        .btn:hover {
+            background-color: #c98a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(220, 163, 163, 0.5);
+        }
+
+        /* Form */
+        .rsvp-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        .form-group input, .form-group select {
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: 'Lato', sans-serif;
+            font-size: 1rem;
+            background: #f8fafc;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--dusty-rose);
+            background: #fff;
+        }
+
+        #rsvp-success {
+            display: none;
+            color: var(--dusty-rose);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-top: 2rem;
+            line-height: 1.4;
+        }
+
+        /* Footer */
+        #slide-footer {
+            background-image: linear-gradient(rgba(253, 251, 247, 0.8), rgba(253, 251, 247, 0.95)), url('https://images.unsplash.com/photo-1520854221256-17451cc331bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .footer-frame {
+            width: 220px;
+            height: 220px;
+            border: 3px solid var(--gold);
+            border-radius: 50%;
+            margin-bottom: 2.5rem;
+            padding: 10px;
+            background-image: url('https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Navigation Dots */
+        .nav-dots {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        .nav-dots.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(113, 128, 150, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background-color: var(--dusty-rose);
+            transform: scale(1.3);
+        }
+
+        /* Fade in animation for slides */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1), transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .slide.is-visible .fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title-large { font-size: 3.5rem; }
+            .countdown { gap: 1rem; padding: 1rem; }
+            .countdown-value { font-size: 2rem; }
+            .info-card { padding: 2.5rem 1.5rem; }
+            .envelope-wrapper { height: 75vh; }
+            .nav-dots { bottom: 15px; }
+            .parents-text { font-size: 0.95rem; }
+            .bible-verse { font-size: 1rem; max-width: 95%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1: Envelope -->
+    <div id="envelope-container">
+        <div class="envelope" id="envelope">
+            <div class="env-back"></div>
+            <div class="env-left"></div>
+            <div class="env-right"></div>
+            <div class="env-bottom"></div>
+            <div class="env-top" id="envelope-flap"></div>
+            
+            <div class="wax-seal-container" id="wax-seal">
+                <svg class="wax-seal-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="sealGrad" cx="30%" cy="30%" r="70%">
+                            <stop offset="0%" stop-color="#e6c5a8" />
+                            <stop offset="50%" stop-color="#b88a68" />
+                            <stop offset="100%" stop-color="#8a5a3a" />
+                        </radialGradient>
+                        <filter id="dropShadow">
+                            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.5" />
+                        </filter>
+                    </defs>
+                    <!-- Scalloped edge -->
+                    <path d="M50 5 C55 5, 58 2, 63 4 C67 6, 68 10, 73 12 C78 14, 82 13, 86 16 C89 19, 88 24, 91 28 C94 32, 98 34, 98 39 C98 44, 95 47, 95 52 C95 57, 98 60, 98 65 C98 70, 94 72, 91 76 C88 80, 89 85, 86 88 C82 91, 78 90, 73 92 C68 94, 67 98, 63 100 C58 102, 55 99, 50 99 C45 99, 42 102, 37 100 C33 98, 32 94, 27 92 C22 90, 18 91, 14 88 C11 85, 12 80, 9 76 C6 72, 2 70, 2 65 C2 60, 5 57, 5 52 C5 47, 2 44, 2 39 C2 34, 6 32, 9 28 C12 24, 11 19, 14 16 C18 13, 22 14, 27 12 C32 10, 33 6, 37 4 C42 2, 45 5, 50 5 Z" fill="url(#sealGrad)" filter="url(#dropShadow)"/>
+                    <!-- Inner ring -->
+                    <circle cx="50" cy="52" r="32" fill="none" stroke="#8a5a3a" stroke-width="1.5" opacity="0.6"/>
+                    <circle cx="50" cy="52" r="30" fill="none" stroke="#e6c5a8" stroke-width="1" opacity="0.8"/>
+                    <!-- Text -->
+                    <text x="50" y="62" font-family="'Great Vibes', cursive" font-size="28" fill="#5c3a21" text-anchor="middle" style="text-shadow: 1px 1px 0px rgba(255,255,255,0.3);">B&amp;R</text>
+                    <!-- Small ornaments -->
+                    <path d="M50 25 Q45 28 40 25 Q45 22 50 25 Z" fill="#5c3a21" opacity="0.7"/>
+                    <path d="M50 25 Q55 28 60 25 Q55 22 50 25 Z" fill="#5c3a21" opacity="0.7"/>
+                    <path d="M50 79 Q45 76 40 79 Q45 82 50 79 Z" fill="#5c3a21" opacity="0.7"/>
+                    <path d="M50 79 Q55 76 60 79 Q55 82 50 79 Z" fill="#5c3a21" opacity="0.7"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="tap-text" id="tap-text">Tap to open</div>
+    </div>
+
+    <!-- Navigation Dots -->
+    <div class="nav-dots" id="nav-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="scroll-container" id="main-scroll">
+        
+        <!-- Slide 2: Hero -->
+        <section class="slide" id="slide-hero">
+            <div class="fade-in">
+                <h1 class="title-large">Bechara & Randa</h1>
+                <div class="subtitle">Are Getting Married</div>
+                <div class="countdown" id="countdown">
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="days">00</span>
+                        <span class="countdown-label">Days</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="hours">00</span>
+                        <span class="countdown-label">Hours</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="minutes">00</span>
+                        <span class="countdown-label">Mins</span>
+                    </div>
+                    <div class="countdown-item">
+                        <span class="countdown-value" id="seconds">00</span>
+                        <span class="countdown-label">Secs</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: The Invite -->
+        <section class="slide" id="slide-invite">
+            <div class="fade-in">
+                <div class="bible-verse">
+                    "Therefore what God has joined together, let no one separate."<br>— Mark 10:9
+                </div>
+                <div class="parents-text">
+                    With joyous hearts,<br>
+                    <strong>Hanna & Liliane Tayeh</strong><br>
+                    and<br>
+                    <strong>Fawaz & Mona Zgheib</strong><br><br>
+                    request the honor of your presence at the wedding of their son and daughter
+                </div>
+                <h2 class="title-large" style="font-size: 3.5rem; margin-top: 1rem;">Bechara & Randa</h2>
+                <div class="wedding-date">August 15, 2026</div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Ceremony -->
+        <section class="slide">
+            <div class="info-card fade-in">
+                <h3 class="info-title">Wedding Ceremony</h3>
+                <div class="info-detail">
+                    <strong>St. Ephrem Church</strong><br>
+                    كنيسة مار أفرام<br>
+                    Kfardebias, Lebanon<br>
+                    <br>
+                    Saturday, August 15, 2026<br>
+                    4:00 PM
+                </div>
+                <a href="https://maps.google.com/?q=St.+Ephrem+Church,+Kfardebias,+Lebanon" target="_blank" class="btn">View on Map</a>
+            </div>
+        </section>
+
+        <!-- Slide 5: Reception -->
+        <section class="slide">
+            <div class="info-card fade-in">
+                <h3 class="info-title">Let's Party</h3>
+                <div class="info-detail">
+                    <strong>Qalaat al Roumiyeh Restaurant</strong><br>
+                    مطعم قلعة الرومية<br>
+                    Falia, Lebanon<br>
+                    <br>
+                    Following the ceremony<br>
+                    7:00 PM
+                </div>
+                <a href="https://maps.google.com/?q=Qalaat+al+Roumiyeh+Restaurant,+Falia,+Lebanon" target="_blank" class="btn">View on Map</a>
+            </div>
+        </section>
+
+        <!-- Slide 6: Gift Registry -->
+        <section class="slide">
+            <div class="info-card fade-in">
+                <h3 class="info-title">Gift Registry</h3>
+                <div class="info-detail">
+                    Your love, laughter, and presence are all we could wish for on our special day.<br><br>
+                    For those who wish, a wedding registry is available at:<br><br>
+                    <strong style="font-size: 1.4rem; color: var(--text-dark); letter-spacing: 1px;">WHISH MONEY</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: RSVP -->
+        <section class="slide">
+            <div class="info-card fade-in">
+                <h3 class="info-title">Be Our Guest</h3>
+                <div class="info-detail" style="margin-bottom: 1.5rem;">
+                    Please RSVP by July 15, 2026
+                </div>
+                
+                <form id="rsvp-form" class="rsvp-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" required placeholder="John & Jane Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="attendance">Will you attend?</label>
+                        <select id="attendance" required>
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="yes">Joyfully Accept</option>
+                            <option value="no">Regretfully Decline</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="guests">Number of Guests</label>
+                        <select id="guests" required>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn" style="margin-top: 0.5rem;">Send RSVP</button>
+                </form>
+                <div id="rsvp-success">
+                    Thank you for your confirmation!<br>See you there :)
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 8: Footer -->
+        <section class="slide" id="slide-footer">
+            <div class="fade-in">
+                <div class="footer-frame"></div>
+                <div class="script-font" style="font-size: 3rem; color: var(--dusty-rose); margin-bottom: 1rem;">Always & Forever</div>
+                <h2 class="title-large" style="font-size: 3.5rem;">Bechara & Randa</h2>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Envelope Animation Logic
+        const envelopeContainer = document.getElementById('envelope-container');
+        const envelope = document.getElementById('envelope');
+        const envelopeFlap = document.getElementById('envelope-flap');
+        const waxSeal = document.getElementById('wax-seal');
+        const tapText = document.getElementById('tap-text');
+        const mainScroll = document.getElementById('main-scroll');
+        const navDotsContainer = document.getElementById('nav-dots');
+
+        let isOpen = false;
+
+        envelopeContainer.addEventListener('click', () => {
+            if (isOpen) return;
+            isOpen = true;
+            
+            // Hide tap text
+            tapText.style.opacity = '0';
+            
+            // Step 1: Break seal
+            waxSeal.classList.add('broken');
+            
+            // Step 2: Open flap
+            setTimeout(() => {
+                envelopeFlap.classList.add('open');
+            }, 300);
+            
+            // Step 3: Zoom and fade out envelope
+            setTimeout(() => {
+                envelope.classList.add('opening');
+                navDotsContainer.classList.add('active');
+            }, 800);
+            
+            // Step 4: Transition to main site
+            setTimeout(() => {
+                // Enable scrolling on the main container
+                mainScroll.classList.add('active');
+                
+                // Remove envelope from DOM flow
+                envelopeContainer.style.display = 'none';
+            }, 2000);
+        });
+
+        // Countdown Logic
+        // Set date to August 15, 2026
+        const countDownDate = new Date("Aug 15, 2026 16:00:00").getTime();
+
+        const x = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerHTML = days.toString().padStart(2, '0');
+            document.getElementById("hours").innerHTML = hours.toString().padStart(2, '0');
+            document.getElementById("minutes").innerHTML = minutes.toString().padStart(2, '0');
+            document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, '0');
+
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("countdown").innerHTML = "<div class='script-font' style='font-size: 2.5rem; color: var(--dusty-rose);'>Today is the day!</div>";
+            }
+        }, 1000);
+
+        // RSVP Form Logic
+        const rsvpForm = document.getElementById('rsvp-form');
+        const rsvpSuccess = document.getElementById('rsvp-success');
+
+        rsvpForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            rsvpForm.style.display = 'none';
+            rsvpSuccess.style.display = 'block';
+        });
+
+        // Intersection Observer for Animations and Nav Dots
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+
+        const observerOptions = {
+            root: mainScroll,
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    
+                    // Update dots
+                    const index = Array.from(slides).indexOf(entry.target);
+                    dots.forEach(dot => dot.classList.remove('active'));
+                    if (dots[index]) {
+                        dots[index].classList.add('active');
+                    }
+                }
+            });
+        }, observerOptions);
+
+        slides.forEach(slide => {
+            observer.observe(slide);
+        });
+
+        // Dot click navigation
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                slides[index].scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+    </script>
+</body>
+</html>
+
