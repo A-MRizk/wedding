@@ -55,18 +55,21 @@ export default function App() {
           </div>
         </motion.div>
 
-        {/* Envelope Bottom Front Image */}
-        <div className="absolute inset-0 z-20 pointer-events-none flex items-end">
+        {/* Envelope Bottom Front Image (Body) */}
+        <div 
+          className="absolute inset-0 z-20 pointer-events-none"
+          style={{ clipPath: 'polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%)' }}
+        >
           <img 
-            src="/envelope-bottom.png?v=3" 
-            alt="Envelope Bottom" 
-            className="w-full h-full object-contain object-bottom drop-shadow-xl"
+            src="/envelope-bottom.png" 
+            alt="Envelope Body" 
+            className="w-full h-full object-cover drop-shadow-xl"
           />
         </div>
 
         {/* Envelope Top Flap Image */}
         <motion.div 
-          className="absolute top-0 left-0 w-full h-[50%] origin-top"
+          className="absolute inset-0 origin-top"
           initial={{ rotateX: 0, zIndex: 30 }}
           animate={{ 
             rotateX: isOpen ? 180 : 0,
@@ -79,11 +82,17 @@ export default function App() {
           style={{ transformStyle: 'preserve-3d' }}
         >
           {/* Front of flap (with image) */}
-          <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
+          <div 
+            className="absolute inset-0" 
+            style={{ 
+              backfaceVisibility: 'hidden',
+              clipPath: 'polygon(0 0, 100% 0, 50% 52%)'
+            }}
+          >
             <img 
-              src="/envelope-top.png?v=3" 
+              src="/envelope-bottom.png" 
               alt="Envelope Top Flap" 
-              className="w-full h-full object-contain object-top drop-shadow-xl"
+              className="w-full h-full object-cover drop-shadow-xl"
             />
           </div>
           
@@ -92,11 +101,12 @@ export default function App() {
             className="absolute inset-0"
             style={{ 
               backfaceVisibility: 'hidden',
-              transform: 'rotateX(180deg)'
+              transform: 'rotateX(180deg)',
+              clipPath: 'polygon(0 100%, 100% 100%, 50% 48%)'
             }}
           >
-            {/* Fallback inside flap color */}
-            <div className="w-full h-full bg-[#4a1522] rounded-b-sm shadow-inner" style={{ clipPath: 'polygon(0 100%, 100% 100%, 50% 0)' }} />
+            {/* Inside flap color */}
+            <div className="w-full h-full bg-[#4a1522] rounded-b-sm shadow-inner" />
           </div>
         </motion.div>
       </div>
