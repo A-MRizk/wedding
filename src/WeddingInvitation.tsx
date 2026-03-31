@@ -6,7 +6,7 @@ import {
   type CSSProperties,
   type TransitionEvent,
 } from "react";
-import sealImage from "./assets/Seal_with_B_R_202603301631-removebg-preview.png";
+import sealImage from "./assets/Seal.png";
 import photoBechara from "./assets/Bechara.jpeg";
 import photoRanda from "./assets/Randa.jpeg";
 import photoCloseLooking from "./assets/CloseLooking.jpeg";

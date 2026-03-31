@@ -6,6 +6,9 @@
   --ivory: #fdfbf7;
   --dusty-rose: #dca3a3;
   --gold: #d4af37;
+  /* Wax seal (Seal.png): deep wine / metallic burgundy */
+  --seal-burgundy: #7b1826;
+  --seal-burgundy-mid: #842c3e;
   --text-dark: #2d3748;
   --text-light: #718096;
   --env-flap-duration: 0.7s;
@@ -431,16 +434,16 @@ html {
   }
 }
 
-h1,
-h2,
-h3,
+.title-large,
 .script-font {
   font-family: "Great Vibes", cursive;
   font-weight: normal;
 }
 
-.serif-font {
-  font-family: "Playfair Display", serif;
+h1,
+h2,
+h3 {
+  font-weight: normal;
 }
 
 .title-large {
@@ -451,11 +454,10 @@ h3,
 }
 
 .subtitle {
-  font-family: "Lato", sans-serif;
   text-transform: uppercase;
   letter-spacing: 4px;
   font-size: 0.9rem;
-  color: var(--text-light);
+  color: var(--seal-burgundy-mid);
   margin-bottom: 2rem;
 }
 
@@ -489,7 +491,6 @@ h3,
 }
 
 .countdown-value {
-  font-family: "Playfair Display", serif;
   font-size: 2.5rem;
   color: var(--dusty-rose);
   line-height: 1;
@@ -523,7 +524,6 @@ h3,
 }
 
 .wedding-date {
-  font-family: "Playfair Display", serif;
   font-size: 1.8rem;
   color: var(--dusty-rose);
   margin-top: 1.5rem;
@@ -537,10 +537,12 @@ h3,
 }
 
 .info-title {
-  font-family: "Playfair Display", serif;
   font-size: 2.2rem;
-  color: var(--gold);
+  color: var(--seal-burgundy-mid);
   margin-bottom: 1.5rem;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4),
+    0 -1px 0 rgba(45, 20, 28, 0.12);
   filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.95))
     drop-shadow(0 0 12px rgba(253, 251, 247, 0.6));
 }
@@ -625,7 +627,6 @@ h3,
 
 .rsvp-success-message {
   color: var(--dusty-rose);
-  font-family: "Playfair Display", serif;
   font-size: 1.8rem;
   margin-top: 2rem;
   line-height: 1.4;
@@ -640,13 +641,16 @@ h3,
 .footer-frame {
   width: 220px;
   height: 220px;
-  border: 3px solid var(--gold);
+  border: 3px solid var(--seal-burgundy-mid);
   border-radius: 50%;
   margin-bottom: 2.5rem;
   padding: 10px;
   background-size: cover;
   background-position: center top;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 10px 28px rgba(45, 20, 28, 0.18),
+    0 0 0 1px rgba(132, 44, 62, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .polaroid-row {
@@ -690,7 +694,6 @@ h3,
 }
 
 .polaroid figcaption {
-  font-family: "Great Vibes", cursive;
   font-size: clamp(1.35rem, 4vw, 1.85rem);
   text-align: center;
   margin-top: 8px;
