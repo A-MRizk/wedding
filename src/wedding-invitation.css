@@ -1,5 +1,6 @@
 :root {
-  --env-bg: #9fa8b0;
+  --env-bg: #f9f9f7;
+  --env-bg-triangle: #efece6;
   --env-dark: #8a949d;
   --env-seal: #4a5568;
   --ivory: #fdfbf7;
@@ -7,6 +8,9 @@
   --gold: #d4af37;
   --text-dark: #2d3748;
   --text-light: #718096;
+  --env-flap-duration: 0.7s;
+  --env-bottom-duration: 0.8s;
+  --env-backdrop-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -18,23 +22,48 @@
 body,
 html {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: 100%;
   font-family: "Lato", sans-serif;
   background-color: var(--env-bg);
   overflow: hidden;
+  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+#root {
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .scroll-container {
+  position: relative;
+  z-index: 0;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
+  /* `auto` avoids extra momentum fighting snap; dot nav uses scrollIntoView(smooth) */
+  scroll-behavior: auto;
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  box-sizing: border-box;
+  overscroll-behavior-x: contain;
 }
 
 .scroll-container::-webkit-scrollbar {
@@ -43,13 +72,20 @@ html {
 
 .scroll-container.active {
   overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 
 .slide {
-  flex: 0 0 100vw;
-  width: 100vw;
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
   height: 100vh;
+  height: 100dvh;
   scroll-snap-align: start;
+  scroll-snap-stop: always;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -57,24 +93,264 @@ html {
   align-items: center;
   text-align: center;
   padding: 2rem;
-  overflow: hidden;
+  padding-left: max(2rem, env(safe-area-inset-left, 0px));
+  padding-right: max(2rem, env(safe-area-inset-right, 0px));
+  padding-top: max(2rem, env(safe-area-inset-top, 0px));
+  padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px));
+  overflow-x: hidden;
+  overflow-x: clip;
+  overflow-y: hidden;
+  box-sizing: border-box;
   background-color: var(--ivory);
   color: var(--text-dark);
 }
 
+/* Dense copy + polaroids: fit viewport; inner scroll if still tight */
+#slide-invite {
+  padding-top: max(
+    clamp(0.5rem, 1.5dvh, 1.25rem),
+    env(safe-area-inset-top, 0px)
+  );
+  padding-bottom: max(
+    clamp(0.5rem, 1.5dvh, 1.25rem),
+    env(safe-area-inset-bottom, 0px)
+  );
+  padding-left: max(
+    clamp(0.75rem, 3vw, 1.5rem),
+    env(safe-area-inset-left, 0px)
+  );
+  padding-right: max(
+    clamp(0.75rem, 3vw, 1.5rem),
+    env(safe-area-inset-right, 0px)
+  );
+  justify-content: center;
+  overflow-x: hidden;
+  overflow-x: clip;
+  overflow-y: hidden;
+}
+
+#slide-invite .slide-invite__content {
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: calc(
+    100vh - 1.25rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+  );
+  max-height: calc(
+    100dvh - 1.25rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+  );
+  width: 100%;
+  max-width: 36rem;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0.15rem 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#slide-invite .bible-verse {
+  margin-bottom: clamp(0.35rem, 1.5dvh, 0.85rem);
+  line-height: 1.4;
+  font-size: clamp(0.78rem, 2.6dvw, 1rem);
+  max-width: 95%;
+}
+
+#slide-invite .parents-text {
+  font-size: clamp(0.8rem, 2.4dvw, 0.98rem);
+  line-height: 1.4;
+  margin-bottom: clamp(0.25rem, 1dvh, 0.5rem);
+}
+
+#slide-invite .slide-invite__names {
+  font-size: clamp(1.85rem, 6.5dvw, 3rem);
+  margin-top: clamp(0.2rem, 0.8dvh, 0.5rem);
+  margin-bottom: 0;
+  line-height: 1.05;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  padding-inline: 0.25rem;
+  box-sizing: border-box;
+}
+
+#slide-invite .wedding-date {
+  font-size: clamp(1rem, 3.8dvw, 1.45rem);
+  margin-top: clamp(0.2rem, 0.8dvh, 0.45rem);
+}
+
+#slide-invite .polaroid-row--invite {
+  margin-top: clamp(0.25rem, 1.2dvh, 0.75rem);
+  gap: clamp(0.35rem, 2vw, 1rem);
+  width: 100%;
+  max-width: 100%;
+  padding-inline: clamp(10px, 4vw, 1.25rem);
+  box-sizing: border-box;
+  overflow-x: clip;
+  justify-content: center;
+}
+
+#slide-invite .polaroid-row--invite .polaroid {
+  max-width: min(132px, calc(42vw - 12px));
+  padding: 6px 6px 22px;
+}
+
+#slide-invite .polaroid-row--invite .polaroid img {
+  height: clamp(88px, 22dvh, 150px);
+  width: 100%;
+  aspect-ratio: unset;
+  object-fit: cover;
+  object-position: center 15%;
+}
+
+#slide-invite .polaroid-row--invite .polaroid figcaption {
+  font-size: clamp(1.05rem, 3.5vw, 1.45rem);
+  margin-top: 4px;
+}
+
 #envelope-container {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: transparent;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Transparent so when .env-backdrop-mid slides away, invitation shows through */
+  background-color: transparent;
   z-index: 100;
-  display: block;
-  perspective: 1000px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   transition:
     opacity 0.8s ease 0.5s,
     visibility 0.8s ease 0.5s;
+}
+
+#envelope-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Backdrop: center slides left; top / bottom triangles slide apart (open with .env-open) */
+#envelope-container > .envelope-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.env-backdrop-under {
+  position: absolute;
+  inset: 0;
+  background-color: transparent;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.env-backdrop-mid {
+  position: absolute;
+  inset: 0;
+  background-color: var(--env-bg);
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.78s var(--env-backdrop-ease);
+  will-change: transform;
+  z-index: 4;
+}
+
+.env-backdrop-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(50% - 5px);
+  z-index: 5;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 52' preserveAspectRatio='none'%3E%3Cpath d='M0 0L100 0 100 10 56 46Q50 52 44 46L0 10Z' fill='%23efece6'/%3E%3C/svg%3E");
+  filter: drop-shadow(0 16px 32px rgba(45, 55, 72, 0.12))
+    drop-shadow(0 8px 16px rgba(45, 55, 72, 0.08))
+    drop-shadow(0 2px 6px rgba(45, 55, 72, 0.05));
+  transform: translateY(0);
+  transition: transform var(--env-flap-duration) var(--env-backdrop-ease);
+}
+
+.env-backdrop-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: calc(50% - 5px);
+  z-index: 5;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 52' preserveAspectRatio='none'%3E%3Cpath d='M0 52L100 52 100 42 56 6Q50 0 44 6L0 42Z' fill='%23efece6'/%3E%3C/svg%3E");
+  filter: drop-shadow(0 -14px 28px rgba(45, 55, 72, 0.11))
+    drop-shadow(0 -6px 14px rgba(45, 55, 72, 0.07))
+    drop-shadow(0 -2px 6px rgba(45, 55, 72, 0.05));
+  transform: translateY(0);
+  transition: transform var(--env-flap-duration) var(--env-backdrop-ease);
+}
+
+#envelope-container.env-open .env-backdrop-mid {
+  transform: translate3d(-100%, 0, 0);
+}
+
+#envelope-container.env-open .env-backdrop-top {
+  transform: translateY(-100%);
+}
+
+#envelope-container.env-open .env-backdrop-bottom {
+  transform: translateY(100%);
+}
+
+/* PNG wax seal asset (transparent) */
+#envelope-container > .envelope-hero-seal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  pointer-events: none;
+  width: clamp(104px, 34vw, 168px);
+  height: clamp(104px, 34vw, 168px);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 10px 22px rgba(45, 35, 10, 0.22))
+    drop-shadow(0 3px 8px rgba(45, 35, 10, 0.12));
+}
+
+#envelope-container > .envelope-hero-seal .envelope-hero-seal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition:
+    transform 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#envelope-container > .envelope {
+  z-index: 3;
+}
+
+.envelope-hero-seal.is-broken {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.72) rotate(-14deg);
+  transition:
+    opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.4s cubic-bezier(0.55, 0, 0.85, 0.35);
+  pointer-events: none;
+  filter: none;
+}
+
+.envelope-hero-seal.is-broken .envelope-hero-seal-img {
+  transform: scale(1.08) rotate(8deg);
+  opacity: 0;
+  filter: blur(3px) brightness(1.15);
 }
 
 .envelope {
@@ -83,36 +359,7 @@ html {
   width: 100%;
   height: 100%;
   background: transparent;
-  border-radius: 0;
-  overflow: visible;
-  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
-  transform-style: preserve-3d;
   cursor: pointer;
-  isolation: isolate;
-}
-
-.envelope.opening {
-  transform: scale(5);
-  opacity: 0;
-  transition:
-    transform 1.5s cubic-bezier(0.5, 0, 0.2, 1) 0.4s,
-    opacity 0.8s ease 0.8s;
-}
-
-.env-image-bottom {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  transform: translateZ(0);
-  pointer-events: none;
-}
-
-.env-image-bottom img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
 }
 
 .env-top {
@@ -120,27 +367,54 @@ html {
   top: 0;
   left: 0;
   width: 100%;
-  height: 52%;
+  height: 90%;
   z-index: 10;
-  transform: translateZ(1px);
+  overflow: hidden;
+  transform: translateY(0) translateZ(0);
   transform-origin: top center;
-  transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  transition: transform var(--env-flap-duration) var(--env-backdrop-ease);
   pointer-events: none;
+  backface-visibility: hidden;
 }
 
 .env-flap-img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: top center;
+  object-fit: fill;
+  transform: scaleX(1.4);
+  backface-visibility: hidden;
 }
 
 .env-top.open {
-  transform: translateZ(1px) rotateX(180deg);
+  transform: translateY(-100%) translateZ(0);
   z-index: 1;
+}
+
+.env-image-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 90%;
+  z-index: 3;
+  overflow: hidden;
+  transform: translateZ(0) translateY(0);
+  transition: transform var(--env-bottom-duration) var(--env-backdrop-ease);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.env-image-bottom.revealed {
+  transform: translateZ(0) translateY(100%);
+}
+
+.env-image-bottom img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  transform: scaleX(1.4);
 }
 
 #wax-seal {
@@ -190,12 +464,14 @@ h3,
   margin-bottom: 2rem;
 }
 
-#slide-hero {
-  background-image:
-    linear-gradient(rgba(253, 251, 247, 0.6), rgba(253, 251, 247, 0.8)),
-    url("https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80");
+/* Photo backgrounds are set inline from imported assets in WeddingInvitation.tsx */
+.slide-photo-bg {
   background-size: cover;
   background-position: center;
+}
+
+#slide-hero .countdown {
+  transform: translateY(-7vh);
 }
 
 .countdown {
@@ -207,6 +483,8 @@ h3,
   border-radius: 12px;
   backdrop-filter: blur(5px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .countdown-item {
@@ -231,13 +509,6 @@ h3,
   color: var(--text-light);
 }
 
-#slide-invite {
-  background-image:
-    linear-gradient(rgba(253, 251, 247, 0.9), rgba(253, 251, 247, 0.9)),
-    url("https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80");
-  background-size: cover;
-  background-position: center;
-}
 
 .bible-verse {
   font-family: "Playfair Display", serif;
@@ -265,26 +536,10 @@ h3,
   letter-spacing: 1px;
 }
 
-.info-card {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 3.5rem 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+.slide-text {
   max-width: 450px;
   width: 100%;
-  border: 1px solid rgba(220, 163, 163, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.info-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--dusty-rose), var(--gold));
+  padding: 0.5rem 0.25rem;
 }
 
 .info-title {
@@ -292,6 +547,8 @@ h3,
   font-size: 2.2rem;
   color: var(--gold);
   margin-bottom: 1.5rem;
+  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.95))
+    drop-shadow(0 0 12px rgba(253, 251, 247, 0.6));
 }
 
 .info-detail {
@@ -299,6 +556,9 @@ h3,
   line-height: 1.8;
   font-size: 1.05rem;
   color: var(--text-dark);
+  text-shadow:
+    0 0 8px rgba(253, 251, 247, 0.95),
+    0 1px 2px rgba(255, 255, 255, 0.9);
 }
 
 .btn {
@@ -345,6 +605,12 @@ h3,
   font-weight: 700;
 }
 
+.slide-text .form-group label {
+  text-shadow:
+    0 0 6px rgba(253, 251, 247, 0.95),
+    0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
 .form-group input,
 .form-group select {
   padding: 14px;
@@ -371,12 +637,10 @@ h3,
   line-height: 1.4;
 }
 
-#slide-footer {
-  background-image:
-    linear-gradient(rgba(253, 251, 247, 0.8), rgba(253, 251, 247, 0.95)),
-    url("https://images.unsplash.com/photo-1520854221256-17451cc331bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80");
-  background-size: cover;
-  background-position: center;
+.slide-text .rsvp-success-message {
+  text-shadow:
+    0 0 10px rgba(253, 251, 247, 0.95),
+    0 1px 2px rgba(255, 255, 255, 0.95);
 }
 
 .footer-frame {
@@ -386,10 +650,59 @@ h3,
   border-radius: 50%;
   margin-bottom: 2.5rem;
   padding: 10px;
-  background-image: url("https://images.unsplash.com/photo-1511285560929-80b456fea0bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80");
   background-size: cover;
-  background-position: center;
+  background-position: center top;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.polaroid-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(1.25rem, 5vw, 2.75rem);
+  margin-top: 2.25rem;
+  width: 100%;
+  max-width: min(520px, 100%);
+  box-sizing: border-box;
+  overflow-x: clip;
+}
+
+.polaroid {
+  margin: 0;
+  background: #fff;
+  padding: 10px 10px 36px;
+  box-shadow:
+    0 12px 28px rgba(45, 55, 72, 0.18),
+    0 4px 10px rgba(45, 55, 72, 0.1);
+  max-width: min(200px, 38vw);
+  flex: 0 1 auto;
+}
+
+.polaroid--tilt-left {
+  transform: rotate(-5deg);
+}
+
+.polaroid--tilt-right {
+  transform: rotate(4deg);
+}
+
+.polaroid img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  vertical-align: top;
+}
+
+.polaroid figcaption {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(1.35rem, 4vw, 1.85rem);
+  text-align: center;
+  margin-top: 8px;
+  color: var(--text-dark);
+  line-height: 1.2;
 }
 
 .nav-dots {
@@ -447,6 +760,16 @@ h3,
   transform: translateY(0);
 }
 
+@media (max-width: 480px) {
+  #slide-invite .polaroid-row--invite .polaroid--tilt-left {
+    transform: rotate(-2.5deg);
+  }
+
+  #slide-invite .polaroid-row--invite .polaroid--tilt-right {
+    transform: rotate(2deg);
+  }
+}
+
 @media (max-width: 768px) {
   .title-large {
     font-size: 3.5rem;
@@ -454,15 +777,15 @@ h3,
   .countdown {
     gap: 1rem;
     padding: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100%;
   }
   .countdown-value {
     font-size: 2rem;
   }
-  .info-card {
-    padding: 2.5rem 1.5rem;
-  }
-  .envelope-wrapper {
-    height: 75vh;
+  .slide-text {
+    padding: 0.35rem 0.15rem;
   }
   .nav-dots {
     bottom: 15px;

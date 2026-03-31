@@ -1,44 +1,121 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
-import envelopeBottom from './assets/envelope-bottom.png';
-import envelopeTop from './assets/envelope-top.png';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type TransitionEvent,
+} from "react";
+// import envelopeBottom from "./assets/envelope-bottom.png";
+// import envelopeTop from "./assets/envelope-top.png";
+import sealImage from "./assets/Seal_with_B_R_202603301631-removebg-preview.png";
+import photoBechara from "./assets/Bechara.jpeg";
+import photoRanda from "./assets/Randa.jpeg";
+import photoCloseLooking from "./assets/CloseLooking.jpeg";
+import photoClose from "./assets/Close.jpeg";
+import photoHoldingHands from "./assets/HoldingHands.jpeg";
+import photoLookingAway from "./assets/LookingAway.jpeg";
+
+function slidePhotoStyle(
+  url: string,
+  overlayStrong: [number, number] = [0.6, 0.8],
+): CSSProperties {
+  const [a, b] = overlayStrong;
+  return {
+    backgroundImage: `linear-gradient(rgba(253, 251, 247, ${a}), rgba(253, 251, 247, ${b})), url(${url})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  };
+}
 
 const SLIDE_COUNT = 7;
-const COUNTDOWN_TARGET = new Date('Aug 15, 2026 16:00:00').getTime();
+const COUNTDOWN_TARGET = new Date("Aug 15, 2026 16:00:00").getTime();
+
+/** Match `.env-top` transition in wedding-invitation.css */
+const FLAP_DURATION_MS = 700;
+/** Match `.env-image-bottom` transition */
+const BOTTOM_SLIDE_MS = 800;
+/** Let seal “break” paint before envelope opens */
+const SEAL_BREAK_BEFORE_FLAP_MS = 220;
 
 export default function WeddingInvitation() {
   const mainScrollRef = useRef<HTMLDivElement>(null);
+  /** Last settled slide index; used to block multi-slide jumps during scroll. */
+  const lastSnapIndexRef = useRef(0);
+  /** True while programmatic scroll (dots) runs — do not clamp. */
+  const skipScrollClampRef = useRef(false);
   const openedRef = useRef(false);
+  const flapRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const bottomRevealRequestedRef = useRef(false);
+  const invitationRevealRequestedRef = useRef(false);
 
   const [flapOpen, setFlapOpen] = useState(false);
-  const [envelopeOpening, setEnvelopeOpening] = useState(false);
+  const [bottomRevealed, setBottomRevealed] = useState(false);
   const [navDotsActive, setNavDotsActive] = useState(false);
   const [scrollActive, setScrollActive] = useState(false);
   const [hideEnvelope, setHideEnvelope] = useState(false);
   const [sealBroken, setSealBroken] = useState(false);
 
-  const [days, setDays] = useState('00');
-  const [hours, setHours] = useState('00');
-  const [minutes, setMinutes] = useState('00');
-  const [seconds, setSeconds] = useState('00');
+  const [days, setDays] = useState("00");
+  const [hours, setHours] = useState("00");
+  const [minutes, setMinutes] = useState("00");
+  const [seconds, setSeconds] = useState("00");
   const [countdownDone, setCountdownDone] = useState(false);
 
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
   const [activeDot, setActiveDot] = useState(0);
 
+  const requestBottomReveal = useCallback(() => {
+    if (bottomRevealRequestedRef.current) return;
+    bottomRevealRequestedRef.current = true;
+    setBottomRevealed(true);
+  }, []);
+
+  const requestInvitationReveal = useCallback(() => {
+    if (invitationRevealRequestedRef.current) return;
+    invitationRevealRequestedRef.current = true;
+    setNavDotsActive(true);
+    setScrollActive(true);
+    setHideEnvelope(true);
+  }, []);
+
   const handleEnvelopeClick = useCallback(() => {
     if (openedRef.current) return;
     openedRef.current = true;
     setSealBroken(true);
-    window.setTimeout(() => setFlapOpen(true), 300);
     window.setTimeout(() => {
-      setEnvelopeOpening(true);
-      setNavDotsActive(true);
-    }, 800);
-    window.setTimeout(() => {
-      setScrollActive(true);
-      setHideEnvelope(true);
-    }, 2000);
-  }, []);
+      setFlapOpen(true);
+      window.setTimeout(requestBottomReveal, FLAP_DURATION_MS + 120);
+    }, SEAL_BREAK_BEFORE_FLAP_MS);
+  }, [requestBottomReveal]);
+
+  const handleFlapTransitionEnd = useCallback(
+    (e: TransitionEvent<HTMLDivElement>) => {
+      if (e.propertyName !== "transform") return;
+      if (e.target !== flapRef.current) return;
+      requestBottomReveal();
+    },
+    [requestBottomReveal],
+  );
+
+  const handleBottomTransitionEnd = useCallback(
+    (e: TransitionEvent<HTMLDivElement>) => {
+      if (e.propertyName !== "transform") return;
+      if (e.target !== bottomRef.current) return;
+      requestInvitationReveal();
+    },
+    [requestInvitationReveal],
+  );
+
+  useEffect(() => {
+    if (!bottomRevealed) return;
+    const id = window.setTimeout(
+      requestInvitationReveal,
+      BOTTOM_SLIDE_MS + 150,
+    );
+    return () => window.clearTimeout(id);
+  }, [bottomRevealed, requestInvitationReveal]);
 
   useEffect(() => {
     let intervalId = 0;
@@ -49,12 +126,22 @@ export default function WeddingInvitation() {
         if (intervalId) window.clearInterval(intervalId);
         return;
       }
-      setDays(String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0'));
-      setHours(
-        String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0'),
+      setDays(
+        String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, "0"),
       );
-      setMinutes(String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0'));
-      setSeconds(String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0'));
+      setHours(
+        String(
+          Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        ).padStart(2, "0"),
+      );
+      setMinutes(
+        String(
+          Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        ).padStart(2, "0"),
+      );
+      setSeconds(
+        String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, "0"),
+      );
     };
     tick();
     intervalId = window.setInterval(tick, 1000);
@@ -64,43 +151,131 @@ export default function WeddingInvitation() {
   useEffect(() => {
     const root = mainScrollRef.current;
     if (!root) return;
-    const slides = root.querySelectorAll<HTMLElement>('.slide');
-    const dots = document.querySelectorAll<HTMLElement>('.nav-dots .dot');
+    const slides = root.querySelectorAll<HTMLElement>(".slide");
+    const dots = document.querySelectorAll<HTMLElement>(".nav-dots .dot");
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            const index = Array.from(slides).indexOf(entry.target as HTMLElement);
+            entry.target.classList.add("is-visible");
+            const index = Array.from(slides).indexOf(
+              entry.target as HTMLElement,
+            );
             if (index >= 0) {
               setActiveDot(index);
-              dots.forEach((d) => d.classList.remove('active'));
-              if (dots[index]) dots[index].classList.add('active');
+              dots.forEach((d) => d.classList.remove("active"));
+              if (dots[index]) dots[index].classList.add("active");
             }
           }
         });
       },
-      {root, threshold: 0.5},
+      { root, threshold: 0.5 },
     );
     slides.forEach((slide) => observer.observe(slide));
     return () => observer.disconnect();
   }, []);
 
-  const scrollToSlide = (index: number) => {
+  /** Block multi-slide jumps: index may only change by ±1 per scroll gesture (unless using dots). */
+  useEffect(() => {
+    if (!scrollActive) return;
     const root = mainScrollRef.current;
     if (!root) return;
-    const slides = root.querySelectorAll<HTMLElement>('.slide');
-    slides[index]?.scrollIntoView({behavior: 'smooth'});
-  };
+
+    const pageWidth = () => root.clientWidth;
+    const slideCount = () => root.querySelectorAll(".slide").length;
+
+    const syncLastIndexFromScroll = () => {
+      const w = pageWidth();
+      if (w <= 0) return;
+      lastSnapIndexRef.current = Math.round(root.scrollLeft / w);
+    };
+
+    syncLastIndexFromScroll();
+
+    let rafClamp = 0;
+    const onScroll = () => {
+      if (skipScrollClampRef.current) {
+        syncLastIndexFromScroll();
+        return;
+      }
+      cancelAnimationFrame(rafClamp);
+      rafClamp = requestAnimationFrame(() => {
+        const w = pageWidth();
+        if (w <= 0) return;
+        const idx = Math.round(root.scrollLeft / w);
+        const last = lastSnapIndexRef.current;
+        const n = slideCount();
+        if (n === 0) return;
+        if (Math.abs(idx - last) > 1) {
+          const step = idx > last ? 1 : -1;
+          const clamped = Math.max(0, Math.min(n - 1, last + step));
+          root.scrollLeft = clamped * w;
+          lastSnapIndexRef.current = clamped;
+        } else {
+          lastSnapIndexRef.current = idx;
+        }
+      });
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const w = pageWidth();
+      if (w <= 0) return;
+      const n = slideCount();
+      if (n === 0) return;
+      const current = Math.round(root.scrollLeft / w);
+      const dir = e.deltaX > 0 ? 1 : -1;
+      const next = Math.max(0, Math.min(n - 1, current + dir));
+      lastSnapIndexRef.current = next;
+      root.scrollTo({ left: next * w, behavior: "auto" });
+    };
+
+    const endProgrammaticScroll = () => {
+      if (skipScrollClampRef.current) {
+        skipScrollClampRef.current = false;
+      }
+      syncLastIndexFromScroll();
+    };
+
+    root.addEventListener("scroll", onScroll, { passive: true });
+    root.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    root.addEventListener("scrollend", endProgrammaticScroll);
+
+    return () => {
+      root.removeEventListener("scroll", onScroll);
+      root.removeEventListener("wheel", onWheel, true);
+      root.removeEventListener("scrollend", endProgrammaticScroll);
+      cancelAnimationFrame(rafClamp);
+    };
+  }, [scrollActive]);
+
+  const scrollToSlide = useCallback((index: number) => {
+    const root = mainScrollRef.current;
+    if (!root) return;
+    const slides = root.querySelectorAll<HTMLElement>(".slide");
+    skipScrollClampRef.current = true;
+    slides[index]?.scrollIntoView({ behavior: "smooth" });
+    window.setTimeout(() => {
+      if (!skipScrollClampRef.current) return;
+      skipScrollClampRef.current = false;
+      const w = root.clientWidth;
+      if (w > 0) {
+        lastSnapIndexRef.current = Math.round(root.scrollLeft / w);
+      }
+    }, 850);
+  }, []);
 
   return (
     <>
       <div
         id="envelope-container"
-        style={hideEnvelope ? {display: 'none'} : undefined}
+        className={flapOpen ? "env-open" : ""}
+        style={hideEnvelope ? { display: "none" } : undefined}
         onClick={handleEnvelopeClick}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             handleEnvelopeClick();
           }
@@ -109,23 +284,73 @@ export default function WeddingInvitation() {
         tabIndex={0}
         aria-label="Open invitation"
       >
-        <div className={`envelope ${envelopeOpening ? 'opening' : ''}`} id="envelope">
-          <div className="env-image-bottom" aria-hidden="true">
-            <img src={envelopeBottom} alt="" decoding="async" fetchPriority="high" />
+        <div className="envelope-backdrop" aria-hidden="true">
+          <div className="env-backdrop-under" />
+          <div className="env-backdrop-mid" />
+          <div className="env-backdrop-top" />
+          <div className="env-backdrop-bottom" />
+        </div>
+        <div
+          className={`envelope-hero-seal${sealBroken ? " is-broken" : ""}`}
+          aria-hidden="true"
+        >
+          <img
+            className="envelope-hero-seal-img"
+            src={sealImage}
+            alt=""
+            decoding="async"
+            fetchPriority="high"
+          />
+        </div>
+        <div className="envelope" id="envelope">
+          <div
+            ref={bottomRef}
+            className={`env-image-bottom ${bottomRevealed ? "revealed" : ""}`}
+            onTransitionEnd={handleBottomTransitionEnd}
+            aria-hidden="true"
+          >
+            {/*
+            <img
+              src={envelopeBottom}
+              alt=""
+              decoding="async"
+              fetchPriority="high"
+            />
+            */}
           </div>
-          <div className={`env-top ${flapOpen ? 'open' : ''}`} id="envelope-flap">
-            <img src={envelopeTop} className="env-flap-img" alt="" decoding="async" fetchPriority="high" />
+          <div
+            ref={flapRef}
+            className={`env-top ${flapOpen ? "open" : ""}`}
+            id="envelope-flap"
+            onTransitionEnd={handleFlapTransitionEnd}
+          >
+            {/*
+            <img
+              src={envelopeTop}
+              className="env-flap-img"
+              alt=""
+              decoding="async"
+              fetchPriority="high"
+            />
+            */}
           </div>
-          <span id="wax-seal" className={sealBroken ? 'broken' : ''} aria-hidden="true" />
+          <span
+            id="wax-seal"
+            className={sealBroken ? "broken" : ""}
+            aria-hidden="true"
+          />
         </div>
       </div>
 
-      <div className={`nav-dots ${navDotsActive ? 'active' : ''}`} id="nav-dots">
-        {Array.from({length: SLIDE_COUNT}, (_, i) => (
+      <div
+        className={`nav-dots ${navDotsActive ? "active" : ""}`}
+        id="nav-dots"
+      >
+        {Array.from({ length: SLIDE_COUNT }, (_, i) => (
           <button
             key={i}
             type="button"
-            className={`dot ${activeDot === i ? 'active' : ''}`}
+            className={`dot ${activeDot === i ? "active" : ""}`}
             aria-label={`Go to slide ${i + 1}`}
             onClick={() => scrollToSlide(i)}
           />
@@ -134,17 +359,21 @@ export default function WeddingInvitation() {
 
       <div
         ref={mainScrollRef}
-        className={`scroll-container ${scrollActive ? 'active' : ''}`}
+        className={`scroll-container ${scrollActive ? "active" : ""}`}
         id="main-scroll"
       >
-        <section className="slide is-visible" id="slide-hero">
+        <section
+          className="slide is-visible slide-photo-bg"
+          id="slide-hero"
+          style={slidePhotoStyle(photoCloseLooking)}
+        >
           <div className="fade-in">
             <h1 className="title-large">Bechara & Randa</h1>
             <div className="subtitle">Are Getting Married</div>
             {countdownDone ? (
               <div
                 className="script-font"
-                style={{fontSize: '2.5rem', color: 'var(--dusty-rose)'}}
+                style={{ fontSize: "2.5rem", color: "var(--dusty-rose)" }}
               >
                 Today is the day!
               </div>
@@ -171,12 +400,16 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        <section className="slide" id="slide-invite">
-          <div className="fade-in">
+        <section
+          className="slide slide-photo-bg"
+          id="slide-invite"
+          style={slidePhotoStyle(photoClose, [0.88, 0.92])}
+        >
+          <div className="fade-in slide-invite__content">
             <div className="bible-verse">
-              &quot;Therefore what God has joined together, let no one separate.&quot;
-              <br />
-              — Mark 10:9
+              &quot;Therefore what God has joined together, let no one
+              separate.&quot;
+              <br />— Mark 10:9
             </div>
             <div className="parents-text">
               With joyous hearts,
@@ -187,18 +420,29 @@ export default function WeddingInvitation() {
               <br />
               <strong>Fawaz & Mona Zgheib</strong>
               <br />
-              <br />
-              request the honor of your presence at the wedding of their son and daughter
+              request the honor of your presence at the wedding of their son and
+              daughter
             </div>
-            <h2 className="title-large" style={{fontSize: '3.5rem', marginTop: '1rem'}}>
-              Bechara & Randa
-            </h2>
+            <h2 className="title-large slide-invite__names">Bechara & Randa</h2>
             <div className="wedding-date">August 15, 2026</div>
+            <div className="polaroid-row polaroid-row--invite">
+              <figure className="polaroid polaroid--tilt-left">
+                <img src={photoBechara} alt="Bechara" loading="lazy" />
+                <figcaption>Bechara</figcaption>
+              </figure>
+              <figure className="polaroid polaroid--tilt-right">
+                <img src={photoRanda} alt="Randa" loading="lazy" />
+                <figcaption>Randa</figcaption>
+              </figure>
+            </div>
           </div>
         </section>
 
-        <section className="slide">
-          <div className="info-card fade-in">
+        <section
+          className="slide slide-photo-bg"
+          style={slidePhotoStyle(photoHoldingHands, [0.48, 0.66])}
+        >
+          <div className="slide-text fade-in">
             <h3 className="info-title">Wedding Ceremony</h3>
             <div className="info-detail">
               <strong>St. Ephrem Church</strong>
@@ -223,11 +467,14 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        <section className="slide">
-          <div className="info-card fade-in">
+        <section
+          className="slide slide-photo-bg"
+          style={slidePhotoStyle(photoLookingAway, [0.48, 0.66])}
+        >
+          <div className="slide-text fade-in">
             <h3 className="info-title">Let&apos;s Party</h3>
             <div className="info-detail">
-              <strong>Kalaat al Roumiyeh Restaurant</strong>
+              <strong>Kalaat al Roumieh Restaurant</strong>
               <br />
               مطعم قلعة الرومية
               <br />
@@ -249,11 +496,15 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        <section className="slide">
-          <div className="info-card fade-in">
+        <section
+          className="slide slide-photo-bg"
+          style={slidePhotoStyle(photoBechara, [0.52, 0.7])}
+        >
+          <div className="slide-text fade-in">
             <h3 className="info-title">Gift Registry</h3>
             <div className="info-detail">
-              Your love, laughter, and presence are all we could wish for on our special day.
+              Your love, laughter, and presence are all we could wish for on our
+              special day.
               <br />
               <br />
               For those who wish, a wedding registry is available at:
@@ -261,9 +512,9 @@ export default function WeddingInvitation() {
               <br />
               <strong
                 style={{
-                  fontSize: '1.4rem',
-                  color: 'var(--text-dark)',
-                  letterSpacing: '1px',
+                  fontSize: "1.4rem",
+                  color: "var(--text-dark)",
+                  letterSpacing: "1px",
                 }}
               >
                 WHISH MONEY
@@ -272,10 +523,13 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        <section className="slide">
-          <div className="info-card fade-in">
+        <section
+          className="slide slide-photo-bg"
+          style={slidePhotoStyle(photoRanda, [0.52, 0.7])}
+        >
+          <div className="slide-text fade-in">
             <h3 className="info-title">Be Our Guest</h3>
-            <div className="info-detail" style={{marginBottom: '1.5rem'}}>
+            <div className="info-detail" style={{ marginBottom: "1.5rem" }}>
               Please RSVP by July 15, 2026
             </div>
             {rsvpSubmitted ? (
@@ -295,7 +549,12 @@ export default function WeddingInvitation() {
               >
                 <div className="form-group">
                   <label htmlFor="name">Full Name</label>
-                  <input type="text" id="name" required placeholder="John & Jane Doe" />
+                  <input
+                    type="text"
+                    id="name"
+                    required
+                    placeholder="John & Jane Doe"
+                  />
                 </div>
                 <div className="form-group">
                   <label htmlFor="attendance">Will you attend?</label>
@@ -310,14 +569,20 @@ export default function WeddingInvitation() {
                 <div className="form-group">
                   <label htmlFor="guests">Number of Guests</label>
                   <select id="guests" required defaultValue="1">
-                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
+                    {["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"].map(
+                      (n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ),
+                    )}
                   </select>
                 </div>
-                <button type="submit" className="btn" style={{marginTop: '0.5rem'}}>
+                <button
+                  type="submit"
+                  className="btn"
+                  style={{ marginTop: "0.5rem" }}
+                >
                   Send RSVP
                 </button>
               </form>
@@ -325,20 +590,27 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        <section className="slide" id="slide-footer">
+        <section
+          className="slide slide-photo-bg"
+          id="slide-footer"
+          style={slidePhotoStyle(photoClose, [0.75, 0.92])}
+        >
           <div className="fade-in">
-            <div className="footer-frame" />
+            <div
+              className="footer-frame"
+              style={{ backgroundImage: `url(${photoClose})` }}
+            />
             <div
               className="script-font"
               style={{
-                fontSize: '3rem',
-                color: 'var(--dusty-rose)',
-                marginBottom: '1rem',
+                fontSize: "3rem",
+                color: "var(--dusty-rose)",
+                marginBottom: "1rem",
               }}
             >
               Always & Forever
             </div>
-            <h2 className="title-large" style={{fontSize: '3.5rem'}}>
+            <h2 className="title-large" style={{ fontSize: "3.5rem" }}>
               Bechara & Randa
             </h2>
           </div>
