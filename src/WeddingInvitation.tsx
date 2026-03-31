@@ -6,8 +6,6 @@ import {
   type CSSProperties,
   type TransitionEvent,
 } from "react";
-// import envelopeBottom from "./assets/envelope-bottom.png";
-// import envelopeTop from "./assets/envelope-top.png";
 import sealImage from "./assets/Seal_with_B_R_202603301631-removebg-preview.png";
 import photoBechara from "./assets/Bechara.jpeg";
 import photoRanda from "./assets/Randa.jpeg";
@@ -31,18 +29,13 @@ function slidePhotoStyle(
 const SLIDE_COUNT = 7;
 const COUNTDOWN_TARGET = new Date("Aug 15, 2026 16:00:00").getTime();
 
-/** Match `.env-top` transition in wedding-invitation.css */
 const FLAP_DURATION_MS = 700;
-/** Match `.env-image-bottom` transition */
 const BOTTOM_SLIDE_MS = 800;
-/** Let seal “break” paint before envelope opens */
 const SEAL_BREAK_BEFORE_FLAP_MS = 220;
 
 export default function WeddingInvitation() {
   const mainScrollRef = useRef<HTMLDivElement>(null);
-  /** Last settled slide index; used to block multi-slide jumps during scroll. */
   const lastSnapIndexRef = useRef(0);
-  /** True while programmatic scroll (dots) runs — do not clamp. */
   const skipScrollClampRef = useRef(false);
   const openedRef = useRef(false);
   const flapRef = useRef<HTMLDivElement>(null);
@@ -175,7 +168,6 @@ export default function WeddingInvitation() {
     return () => observer.disconnect();
   }, []);
 
-  /** Block multi-slide jumps: index may only change by ±1 per scroll gesture (unless using dots). */
   useEffect(() => {
     if (!scrollActive) return;
     const root = mainScrollRef.current;
@@ -308,32 +300,13 @@ export default function WeddingInvitation() {
             className={`env-image-bottom ${bottomRevealed ? "revealed" : ""}`}
             onTransitionEnd={handleBottomTransitionEnd}
             aria-hidden="true"
-          >
-            {/*
-            <img
-              src={envelopeBottom}
-              alt=""
-              decoding="async"
-              fetchPriority="high"
-            />
-            */}
-          </div>
+          />
           <div
             ref={flapRef}
             className={`env-top ${flapOpen ? "open" : ""}`}
             id="envelope-flap"
             onTransitionEnd={handleFlapTransitionEnd}
-          >
-            {/*
-            <img
-              src={envelopeTop}
-              className="env-flap-img"
-              alt=""
-              decoding="async"
-              fetchPriority="high"
-            />
-            */}
-          </div>
+          />
           <span
             id="wax-seal"
             className={sealBroken ? "broken" : ""}

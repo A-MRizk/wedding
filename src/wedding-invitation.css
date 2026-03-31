@@ -55,7 +55,6 @@ html {
   overflow-x: hidden;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  /* `auto` avoids extra momentum fighting snap; dot nav uses scrollIntoView(smooth) */
   scroll-behavior: auto;
   display: flex;
   flex-direction: row;
@@ -105,7 +104,6 @@ html {
   color: var(--text-dark);
 }
 
-/* Dense copy + polaroids: fit viewport; inner scroll if still tight */
 #slide-invite {
   padding-top: max(
     clamp(0.5rem, 1.5dvh, 1.25rem),
@@ -211,7 +209,6 @@ html {
   inset: 0;
   width: 100%;
   height: 100%;
-  /* Transparent so when .env-backdrop-mid slides away, invitation shows through */
   background-color: transparent;
   z-index: 100;
   display: flex;
@@ -228,7 +225,6 @@ html {
   z-index: 1;
 }
 
-/* Backdrop: center slides left; top / bottom triangles slide apart (open with .env-open) */
 #envelope-container > .envelope-backdrop {
   position: absolute;
   inset: 0;
@@ -301,7 +297,6 @@ html {
   transform: translateY(100%);
 }
 
-/* PNG wax seal asset (transparent) */
 #envelope-container > .envelope-hero-seal {
   position: absolute;
   left: 50%;
@@ -464,7 +459,6 @@ h3,
   margin-bottom: 2rem;
 }
 
-/* Photo backgrounds are set inline from imported assets in WeddingInvitation.tsx */
 .slide-photo-bg {
   background-size: cover;
   background-position: center;
@@ -693,7 +687,6 @@ h3,
   object-fit: cover;
   object-position: center top;
   display: block;
-  vertical-align: top;
 }
 
 .polaroid figcaption {

@@ -1,20 +1,16 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Bechara & Randa — Wedding Invitation
 
-# Run and deploy your AI Studio app
+Single-page wedding invitation (Vite + React + TypeScript + Tailwind).
 
-This contains everything you need to run your app locally.
+## Run locally
 
-View your app in AI Studio: https://ai.studio/apps/abd6a21e-ea0b-4a24-9111-a63680c8fef6
+1. Install dependencies: `npm install`
+2. Start dev server: `npm run dev`
+3. Production build: `npm run build` — output in `dist/`
 
-## Run Locally
+## Scripts
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- `npm run dev` — dev server (port 3000)
+- `npm run build` — production build
+- `npm run preview` — preview production build
+- `npm run lint` — TypeScript check (`tsc --noEmit`)
