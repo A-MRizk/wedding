@@ -1,8 +1,10 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useRef,
   useState,
+  type FormEvent,
   type CSSProperties,
   type TransitionEvent,
 } from "react";
@@ -26,6 +28,102 @@ function slidePhotoStyle(
   };
 }
 
+/** Heart + music motif for the floating music toggle */
+function MusicFabGlyph({
+  variant,
+}: {
+  variant: "playing" | "quiet" | "error";
+}) {
+  const heartGradId = `music-fab-hg-${useId().replace(/:/g, "")}`;
+  const heart =
+    "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
+
+  if (variant === "error") {
+    return (
+      <span className="music-fab__glyph">
+        <svg className="music-fab__svg" viewBox="0 0 24 24" aria-hidden>
+          <path className="music-fab__heart-fill" fill="currentColor" d={heart} />
+          <path
+            className="music-fab__error-x"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            d="M8 8l8 8M16 8l-8 8"
+          />
+        </svg>
+      </span>
+    );
+  }
+
+  if (variant === "playing") {
+    return (
+      <span className="music-fab__glyph music-fab__glyph--playing">
+        <svg className="music-fab__svg" viewBox="0 0 24 24" aria-hidden>
+          <defs>
+            <linearGradient
+              id={heartGradId}
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
+              <stop offset="0%" stopColor="#fffefb" />
+              <stop offset="45%" stopColor="#fdeef0" />
+              <stop offset="100%" stopColor="#f5d0d6" />
+            </linearGradient>
+          </defs>
+          <path fill={`url(#${heartGradId})`} d={heart} />
+          <circle className="music-fab__sparkle" cx="5" cy="6" r="1.1" fill="#fff" />
+          <circle className="music-fab__sparkle music-fab__sparkle--delay" cx="19" cy="7" r="0.75" fill="#fff" />
+          <text
+            x="12"
+            y="16.5"
+            textAnchor="middle"
+            className="music-fab__note-char"
+            fill="#6b1828"
+          >
+            ♪
+          </text>
+        </svg>
+      </span>
+    );
+  }
+
+  return (
+    <span className="music-fab__glyph music-fab__glyph--quiet">
+      <svg className="music-fab__svg" viewBox="0 0 24 24" aria-hidden>
+        <path
+          className="music-fab__heart-stroke"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.35"
+          strokeLinejoin="round"
+          d={heart}
+        />
+        <text
+          x="12"
+          y="16.5"
+          textAnchor="middle"
+          className="music-fab__note-char music-fab__note-char--quiet"
+          fill="currentColor"
+        >
+          ♪
+        </text>
+        <path
+          className="music-fab__whisper"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeLinecap="round"
+          opacity={0.45}
+          d="M5 20c1.2-.8 2-1 3-.5M6.5 21.5c1-.6 1.8-.7 2.6-.2"
+        />
+      </svg>
+    </span>
+  );
+}
+
 const SLIDE_COUNT = 7;
 const COUNTDOWN_TARGET = new Date("Aug 15, 2026 16:00:00").getTime();
 
@@ -33,8 +131,14 @@ const FLAP_DURATION_MS = 700;
 const BOTTOM_SLIDE_MS = 800;
 const SEAL_BREAK_BEFORE_FLAP_MS = 220;
 
+const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY?.trim() ?? "";
+const WEDDING_MUSIC_SRC =
+  import.meta.env.VITE_WEDDING_MUSIC_URL?.trim() ||
+  `${import.meta.env.BASE_URL}wedding-bg.mp3`;
+
 export default function WeddingInvitation() {
   const mainScrollRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const lastSnapIndexRef = useRef(0);
   const skipScrollClampRef = useRef(false);
   const openedRef = useRef(false);
@@ -57,7 +161,123 @@ export default function WeddingInvitation() {
   const [countdownDone, setCountdownDone] = useState(false);
 
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
+  const [rsvpSending, setRsvpSending] = useState(false);
+  const [rsvpError, setRsvpError] = useState<string | null>(null);
+  const [rsvpAttendance, setRsvpAttendance] = useState<"" | "yes" | "no">(
+    "",
+  );
   const [activeDot, setActiveDot] = useState(0);
+  const [musicPlaying, setMusicPlaying] = useState(false);
+  const [musicLoadError, setMusicLoadError] = useState(false);
+
+  const handleRsvpSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!WEB3FORMS_KEY) return;
+      setRsvpError(null);
+      setRsvpSending(true);
+      try {
+        const form = e.currentTarget;
+        const fd = new FormData(form);
+        const guestName = String(fd.get("name") ?? "").trim();
+        const attendance = String(fd.get("attendance") ?? "");
+        const guests = String(fd.get("guests") ?? "");
+        const attendanceLabel =
+          attendance === "yes"
+            ? "Accept"
+            : attendance === "no"
+              ? "Decline"
+              : attendance;
+        const message = [
+          `Name(s): ${guestName}`,
+          `Response: ${attendanceLabel}`,
+          attendance === "yes" ? `Number of guests: ${guests}` : null,
+        ]
+          .filter(Boolean)
+          .join("\n");
+
+        const payload: Record<string, string> = {
+          access_key: WEB3FORMS_KEY,
+          subject: "RSVP — Bechara & Randa",
+          name: guestName,
+          message,
+        };
+
+        const res = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        const data = (await res.json()) as {
+          success?: boolean | string;
+          message?: string;
+        };
+        const ok = data.success === true || data.success === "true";
+        if (!res.ok || !ok) {
+          throw new Error(
+            data.message || "Could not send your RSVP. Please try again.",
+          );
+        }
+        setRsvpSubmitted(true);
+      } catch (err) {
+        setRsvpError(
+          err instanceof Error
+            ? err.message
+            : "Could not send your RSVP. Please try again.",
+        );
+      } finally {
+        setRsvpSending(false);
+      }
+    },
+    [],
+  );
+
+  /** Starts playback when the user opens the envelope (counts as a user gesture for autoplay rules). */
+  const tryPlayWeddingMusic = useCallback(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    setMusicLoadError(false);
+    void el.play().catch(() => {
+      const onCanPlay = () => {
+        void el.play().catch(() => setMusicLoadError(true));
+        el.removeEventListener("canplay", onCanPlay);
+      };
+      el.addEventListener("canplay", onCanPlay);
+    });
+  }, []);
+
+  const toggleMusic = useCallback(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (el.paused) {
+      void el
+        .play()
+        .then(() => setMusicPlaying(true))
+        .catch(() => setMusicPlaying(false));
+    } else {
+      el.pause();
+      setMusicPlaying(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    const onPlay = () => setMusicPlaying(true);
+    const onPause = () => setMusicPlaying(false);
+    const onError = () => setMusicLoadError(true);
+    el.addEventListener("play", onPlay);
+    el.addEventListener("pause", onPause);
+    el.addEventListener("error", onError);
+    return () => {
+      el.removeEventListener("play", onPlay);
+      el.removeEventListener("pause", onPause);
+      el.removeEventListener("error", onError);
+    };
+  }, []);
 
   const requestBottomReveal = useCallback(() => {
     if (bottomRevealRequestedRef.current) return;
@@ -76,12 +296,13 @@ export default function WeddingInvitation() {
   const handleEnvelopeClick = useCallback(() => {
     if (openedRef.current) return;
     openedRef.current = true;
+    tryPlayWeddingMusic();
     setSealBroken(true);
     window.setTimeout(() => {
       setFlapOpen(true);
       window.setTimeout(requestBottomReveal, FLAP_DURATION_MS + 120);
     }, SEAL_BREAK_BEFORE_FLAP_MS);
-  }, [requestBottomReveal]);
+  }, [requestBottomReveal, tryPlayWeddingMusic]);
 
   const handleFlapTransitionEnd = useCallback(
     (e: TransitionEvent<HTMLDivElement>) => {
@@ -261,6 +482,14 @@ export default function WeddingInvitation() {
 
   return (
     <>
+      <audio
+        ref={audioRef}
+        className="wedding-audio-hidden"
+        src={WEDDING_MUSIC_SRC}
+        loop
+        playsInline
+        preload="auto"
+      />
       <div
         id="envelope-container"
         className={flapOpen ? "env-open" : ""}
@@ -314,6 +543,24 @@ export default function WeddingInvitation() {
           />
         </div>
       </div>
+
+      {sealBroken ? (
+        <button
+          type="button"
+          className={`music-fab ${musicPlaying ? "is-playing" : ""} ${musicLoadError ? "is-error" : ""}`}
+          aria-label={
+            musicPlaying ? "Mute background music" : "Unmute background music"
+          }
+          title="Tap to turn wedding music on or off"
+          onClick={toggleMusic}
+        >
+          <MusicFabGlyph
+            variant={
+              musicLoadError ? "error" : musicPlaying ? "playing" : "quiet"
+            }
+          />
+        </button>
+      ) : null}
 
       <div
         className={`nav-dots ${navDotsActive ? "active" : ""}`}
@@ -502,36 +749,64 @@ export default function WeddingInvitation() {
         >
           <div className="slide-text fade-in">
             <h3 className="info-title">Be Our Guest</h3>
-            <div className="info-detail" style={{ marginBottom: "1.5rem" }}>
+            <div className="info-detail" style={{ marginBottom: "1rem" }}>
               Please RSVP by July 15, 2026
             </div>
+            {!WEB3FORMS_KEY ? (
+              <p className="rsvp-config-hint">
+                Add <code>VITE_WEB3FORMS_ACCESS_KEY</code> to your{" "}
+                <code>.env</code> (free key at{" "}
+                <a
+                  href="https://web3forms.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rsvp-mailto-link"
+                >
+                  web3forms.com
+                </a>
+                ) so RSVP submissions are emailed to you.
+              </p>
+            ) : null}
             {rsvpSubmitted ? (
               <div className="rsvp-success-message">
-                Thank you for your confirmation!
-                <br />
-                See you there :)
+                Thank you — we&apos;ve received your RSVP.
               </div>
             ) : (
               <form
                 id="rsvp-form"
                 className="rsvp-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setRsvpSubmitted(true);
-                }}
+                onSubmit={handleRsvpSubmit}
               >
+                {rsvpError ? (
+                  <p className="rsvp-error" role="alert">
+                    {rsvpError}
+                  </p>
+                ) : null}
                 <div className="form-group">
-                  <label htmlFor="name">Full Name</label>
+                  <label htmlFor="name">Name(s) of guest(s)</label>
                   <input
                     type="text"
                     id="name"
+                    name="name"
                     required
+                    disabled={rsvpSending}
                     placeholder="John & Jane Doe"
                   />
                 </div>
                 <div className="form-group">
                   <label htmlFor="attendance">Will you attend?</label>
-                  <select id="attendance" required defaultValue="">
+                  <select
+                    id="attendance"
+                    name="attendance"
+                    required
+                    disabled={rsvpSending}
+                    value={rsvpAttendance}
+                    onChange={(e) => {
+                      setRsvpAttendance(
+                        e.target.value as "" | "yes" | "no",
+                      );
+                    }}
+                  >
                     <option value="" disabled>
                       Select an option
                     </option>
@@ -539,24 +814,43 @@ export default function WeddingInvitation() {
                     <option value="no">Regretfully Decline</option>
                   </select>
                 </div>
-                <div className="form-group">
-                  <label htmlFor="guests">Number of Guests</label>
-                  <select id="guests" required defaultValue="1">
-                    {["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"].map(
-                      (n) => (
+                {rsvpAttendance !== "no" ? (
+                  <div className="form-group">
+                    <label htmlFor="guests">Number of guests</label>
+                    <select
+                      id="guests"
+                      name="guests"
+                      required={rsvpAttendance === "yes"}
+                      defaultValue="1"
+                      disabled={rsvpSending}
+                    >
+                      {[
+                        "0",
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                      ].map((n) => (
                         <option key={n} value={n}>
                           {n}
                         </option>
-                      ),
-                    )}
-                  </select>
-                </div>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
                 <button
                   type="submit"
                   className="btn"
                   style={{ marginTop: "0.5rem" }}
+                  disabled={!WEB3FORMS_KEY || rsvpSending}
                 >
-                  Send RSVP
+                  {rsvpSending ? "Sending…" : "Send RSVP"}
                 </button>
               </form>
             )}
