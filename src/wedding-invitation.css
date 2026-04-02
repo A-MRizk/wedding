@@ -6,7 +6,7 @@
   --ivory: #fdfbf7;
   --dusty-rose: #dca3a3;
   --gold: #d4af37;
-  /* Wax seal (Seal.png): deep wine / metallic burgundy */
+  /* Wax seal asset: deep wine / metallic burgundy */
   --seal-burgundy: #7b1826;
   --seal-burgundy-mid: #842c3e;
   --text-dark: #2d3748;
@@ -233,6 +233,11 @@ html {
   transition:
     opacity 0.8s ease 0.5s,
     visibility 0.8s ease 0.5s;
+}
+
+/* After the seal breaks, let clicks reach the music control (below this layer in z-index) */
+#envelope-container.envelope-seal-broken {
+  pointer-events: none;
 }
 
 #envelope-container > * {
@@ -734,11 +739,12 @@ h3 {
   visibility: visible;
 }
 
+/* Below envelope (z-index); clicks pass through to the button once seal is broken — see #envelope-container.envelope-seal-broken */
 .music-fab {
   position: fixed;
   bottom: max(20px, env(safe-area-inset-bottom, 0px));
   left: max(16px, env(safe-area-inset-left, 0px));
-  z-index: 110;
+  z-index: 52;
   width: 52px;
   height: 52px;
   padding: 0;
@@ -775,7 +781,7 @@ h3 {
 }
 
 .music-fab:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.98);
 }
 
 .music-fab:focus-visible {

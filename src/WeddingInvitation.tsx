@@ -8,7 +8,7 @@ import {
   type CSSProperties,
   type TransitionEvent,
 } from "react";
-import sealImage from "./assets/Seal.png";
+import sealImage from "./assets/Seal.webp";
 import photoBechara from "./assets/Bechara.jpeg";
 import photoRanda from "./assets/Randa.jpeg";
 import photoCloseLooking from "./assets/CloseLooking.jpeg";
@@ -125,7 +125,7 @@ function MusicFabGlyph({
 }
 
 const SLIDE_COUNT = 7;
-const COUNTDOWN_TARGET = new Date("Aug 15, 2026 16:00:00").getTime();
+const COUNTDOWN_TARGET = new Date("Jun 20, 2026 19:00:00").getTime();
 
 const FLAP_DURATION_MS = 700;
 const BOTTOM_SLIDE_MS = 800;
@@ -492,7 +492,7 @@ export default function WeddingInvitation() {
       />
       <div
         id="envelope-container"
-        className={flapOpen ? "env-open" : ""}
+        className={`${flapOpen ? "env-open" : ""}${sealBroken ? " envelope-seal-broken" : ""}`}
         style={hideEnvelope ? { display: "none" } : undefined}
         onClick={handleEnvelopeClick}
         onKeyDown={(e) => {
@@ -644,7 +644,7 @@ export default function WeddingInvitation() {
               daughter
             </div>
             <h2 className="title-large slide-invite__names">Bechara & Randa</h2>
-            <div className="wedding-date">August 15, 2026</div>
+            <div className="wedding-date">June 20, 2026</div>
             <div className="polaroid-row polaroid-row--invite">
               <figure className="polaroid polaroid--tilt-left">
                 <img src={photoBechara} alt="Bechara" loading="lazy" />
@@ -672,9 +672,9 @@ export default function WeddingInvitation() {
               Kfardebian, Lebanon
               <br />
               <br />
-              Saturday, August 15, 2026
+              Saturday, June 20, 2026
               <br />
-              4:00 PM
+              7:00 PM
             </div>
             <a
               href="https://maps.app.goo.gl/t4zHV3ffWHWBH5QcA"
@@ -703,7 +703,7 @@ export default function WeddingInvitation() {
               <br />
               Following the ceremony
               <br />
-              7:00 PM
+              9:00 PM
             </div>
             <a
               href="https://maps.app.goo.gl/2bBYMPXtK9YErMk76"
@@ -739,6 +739,9 @@ export default function WeddingInvitation() {
               >
                 WHISH MONEY
               </strong>
+              <br />
+              <br />
+              Acc# 00000000
             </div>
           </div>
         </section>
@@ -750,7 +753,7 @@ export default function WeddingInvitation() {
           <div className="slide-text fade-in">
             <h3 className="info-title">Be Our Guest</h3>
             <div className="info-detail" style={{ marginBottom: "1rem" }}>
-              Please RSVP by July 15, 2026
+              Please RSVP by June 1, 2026
             </div>
             {!WEB3FORMS_KEY ? (
               <p className="rsvp-config-hint">
