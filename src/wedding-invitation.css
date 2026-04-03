@@ -176,12 +176,12 @@ html {
 #slide-invite .bible-verse {
   margin-bottom: clamp(0.35rem, 1.5dvh, 0.85rem);
   line-height: 1.45;
-  font-size: clamp(0.96rem, 3.1dvw, 1.22rem);
+  font-size: clamp(1.12rem, 3.55dvw, 1.45rem);
   max-width: 95%;
 }
 
 #slide-invite .parents-text {
-  font-size: clamp(0.98rem, 2.9dvw, 1.18rem);
+  font-size: clamp(1.15rem, 3.35dvw, 1.4rem);
   line-height: 1.45;
   margin-bottom: clamp(0.25rem, 1dvh, 0.5rem);
 }
@@ -198,7 +198,7 @@ html {
 }
 
 #slide-invite .wedding-date {
-  font-size: clamp(1.18rem, 4.4dvw, 1.75rem);
+  font-size: clamp(1.4rem, 5dvw, 2.05rem);
   margin-top: clamp(0.2rem, 0.8dvh, 0.45rem);
 }
 
@@ -227,7 +227,7 @@ html {
 }
 
 #slide-invite .polaroid-row--invite .polaroid figcaption {
-  font-size: clamp(1.1rem, 3.65vw, 1.52rem);
+  font-size: clamp(1.3rem, 4.15vw, 1.82rem);
   margin-top: 4px;
 }
 
@@ -485,7 +485,7 @@ h3 {
 .subtitle {
   text-transform: uppercase;
   letter-spacing: 4px;
-  font-size: clamp(0.88rem, 2.8vw, 1.12rem);
+  font-size: clamp(1.05rem, 3.25vw, 1.35rem);
   color: var(--seal-burgundy-mid);
   margin-bottom: 2rem;
 }
@@ -520,14 +520,14 @@ h3 {
 }
 
 .countdown-value {
-  font-size: clamp(2.25rem, 9.25vw, 3.15rem);
+  font-size: clamp(2.65rem, 10.5vw, 3.65rem);
   color: var(--dusty-rose);
   line-height: 1;
   margin-bottom: 0.5rem;
 }
 
 .countdown-label {
-  font-size: clamp(0.78rem, 2.65vw, 0.98rem);
+  font-size: clamp(0.92rem, 3.05vw, 1.15rem);
   text-transform: uppercase;
   letter-spacing: 2px;
   color: var(--text-light);
@@ -535,7 +535,7 @@ h3 {
 
 .hero-countdown-done {
   color: var(--dusty-rose);
-  font-size: clamp(1.75rem, 7.85vw, 3rem);
+  font-size: clamp(2.05rem, 9vw, 3.5rem);
   line-height: 1.15;
 }
 
@@ -547,11 +547,11 @@ h3 {
   max-width: min(90%, 34rem);
   margin-bottom: 3rem;
   line-height: 1.75;
-  font-size: clamp(1.08rem, 3.55vw, 1.36rem);
+  font-size: clamp(1.28rem, 4.15vw, 1.65rem);
 }
 
 .parents-text {
-  font-size: clamp(1.06rem, 3.35vw, 1.26rem);
+  font-size: clamp(1.25rem, 3.9vw, 1.5rem);
   line-height: 1.95;
   max-width: min(600px, 92vw);
   margin-bottom: 2rem;
@@ -559,7 +559,7 @@ h3 {
 }
 
 .wedding-date {
-  font-size: clamp(1.55rem, 5vw, 2.12rem);
+  font-size: clamp(1.85rem, 5.75vw, 2.5rem);
   color: var(--dusty-rose);
   margin-top: 1.5rem;
   letter-spacing: 1px;
@@ -572,7 +572,7 @@ h3 {
 }
 
 .info-title {
-  font-size: clamp(1.95rem, 5.75vw, 2.8rem);
+  font-size: clamp(2.35rem, 6.65vw, 3.35rem);
   color: var(--seal-burgundy-mid);
   margin-bottom: 1.5rem;
   text-shadow:
@@ -585,7 +585,7 @@ h3 {
 .info-detail {
   margin-bottom: 2.5rem;
   line-height: 1.75;
-  font-size: clamp(1.06rem, 3.75vw, 1.3rem);
+  font-size: clamp(1.25rem, 4.35vw, 1.55rem);
   color: var(--text-dark);
   text-shadow:
     0 0 8px rgba(253, 251, 247, 0.95),
@@ -593,7 +593,7 @@ h3 {
 }
 
 .gift-registry-brand {
-  font-size: clamp(1.2rem, 4.2vw, 1.75rem);
+  font-size: clamp(1.42rem, 4.85vw, 2.05rem);
   color: var(--text-dark);
   letter-spacing: 1px;
 }
@@ -607,7 +607,7 @@ h3 {
   border-radius: 30px;
   text-transform: uppercase;
   letter-spacing: 2px;
-  font-size: clamp(0.84rem, 2.45vw, 1.04rem);
+  font-size: clamp(1rem, 2.85vw, 1.22rem);
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
@@ -634,7 +634,7 @@ h3 {
 }
 
 .form-group label {
-  font-size: clamp(0.82rem, 2.65vw, 0.98rem);
+  font-size: clamp(0.96rem, 3.05vw, 1.15rem);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   margin-bottom: 0.5rem;
@@ -654,7 +654,7 @@ h3 {
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   font-family: "EB Garamond", serif;
-  font-size: clamp(1.06rem, 3.95vw, 1.28rem);
+  font-size: clamp(1.25rem, 4.55vw, 1.5rem);
   background: #f8fafc;
   transition: border-color 0.3s;
 }
@@ -668,7 +668,7 @@ h3 {
 
 .rsvp-success-message {
   color: var(--dusty-rose);
-  font-size: clamp(1.55rem, 5.4vw, 2.18rem);
+  font-size: clamp(1.85rem, 6.25vw, 2.6rem);
   margin-top: 2rem;
   line-height: 1.4;
 }
@@ -735,7 +735,7 @@ h3 {
 }
 
 .polaroid figcaption {
-  font-size: clamp(1.4rem, 4.15vw, 1.92rem);
+  font-size: clamp(1.65rem, 4.8vw, 2.25rem);
   text-align: center;
   margin-top: 8px;
   color: var(--text-dark);
@@ -918,7 +918,7 @@ h3 {
 }
 
 .rsvp-config-hint {
-  font-size: clamp(0.94rem, 3.25vw, 1.12rem);
+  font-size: clamp(1.1rem, 3.75vw, 1.35rem);
   line-height: 1.5;
   color: var(--text-light);
   margin-bottom: 1rem;
@@ -936,7 +936,7 @@ h3 {
 
 .rsvp-error {
   color: #b83232;
-  font-size: clamp(0.98rem, 3.35vw, 1.14rem);
+  font-size: clamp(1.15rem, 3.9vw, 1.38rem);
   line-height: 1.45;
   margin-bottom: 1rem;
   text-align: center;
@@ -1008,7 +1008,7 @@ h3 {
 .footer-tagline {
   color: var(--dusty-rose);
   margin-bottom: 1rem;
-  font-size: clamp(2.15rem, 8.85vw, 3.5rem);
+  font-size: clamp(2.55rem, 10.25vw, 4.15rem);
   line-height: 1.1;
 }
 
@@ -1024,7 +1024,7 @@ h3 {
     max-width: 100%;
   }
   .countdown-value {
-    font-size: clamp(1.95rem, 8.75vw, 2.8rem);
+    font-size: clamp(2.35rem, 10vw, 3.35rem);
   }
   .slide-text {
     padding: 0.35rem 0.15rem;
@@ -1033,10 +1033,10 @@ h3 {
     bottom: 15px;
   }
   .parents-text {
-    font-size: clamp(1rem, 3.25vw, 1.18rem);
+    font-size: clamp(1.18rem, 3.75vw, 1.42rem);
   }
   .bible-verse {
-    font-size: clamp(1.04rem, 3.45vw, 1.22rem);
+    font-size: clamp(1.22rem, 4vw, 1.48rem);
     max-width: 95%;
   }
 }
