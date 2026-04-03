@@ -591,10 +591,7 @@ export default function WeddingInvitation() {
             <h1 className="title-large">Bechara & Randa</h1>
             <div className="subtitle">Are Getting Married</div>
             {countdownDone ? (
-              <div
-                className="script-font"
-                style={{ fontSize: "2.5rem", color: "var(--dusty-rose)" }}
-              >
+              <div className="script-font hero-countdown-done">
                 Today is the day!
               </div>
             ) : (
@@ -730,15 +727,7 @@ export default function WeddingInvitation() {
               For those who wish, a wedding registry is available at:
               <br />
               <br />
-              <strong
-                style={{
-                  fontSize: "1.4rem",
-                  color: "var(--text-dark)",
-                  letterSpacing: "1px",
-                }}
-              >
-                WHISH MONEY
-              </strong>
+              <strong className="gift-registry-brand">WHISH MONEY</strong>
               <br />
               <br />
               Acc# 00000000
@@ -870,16 +859,7 @@ export default function WeddingInvitation() {
               className="footer-frame"
               style={{ backgroundImage: `url(${photoClose})` }}
             />
-            <div
-              className="script-font"
-              style={{
-                fontSize: "3rem",
-                color: "var(--dusty-rose)",
-                marginBottom: "1rem",
-              }}
-            >
-              Always & Forever
-            </div>
+            <div className="script-font footer-tagline">Always & Forever</div>
             <h2 className="title-large" style={{ fontSize: "3.5rem" }}>
               Bechara & Randa
             </h2>
