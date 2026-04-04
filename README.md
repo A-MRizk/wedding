@@ -1,6 +1,6 @@
 # Bechara & Randa — Wedding Invitation
 
-Single-page wedding invitation (Vite + React + TypeScript + Tailwind).
+Single-page wedding invitation (Vite + React + TypeScript).
 
 ## Run locally
 
