@@ -700,7 +700,7 @@ export default function WeddingInvitation() {
               <br />
               Following the ceremony
               <br />
-              9:00 PM
+              8:00 PM
             </div>
             <a
               href="https://maps.app.goo.gl/2bBYMPXtK9YErMk76"
@@ -730,7 +730,7 @@ export default function WeddingInvitation() {
               <strong className="gift-registry-brand">WHISH MONEY</strong>
               <br />
               <br />
-              Acc# 00000000
+              Acc# 20970426-03
             </div>
           </div>
         </section>
